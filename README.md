@@ -20,7 +20,7 @@ Encryption logic using XOR:
 class XOREncryption : public EncryptionBase ...
 ```
 
-Interface for file encryption using encryption:
+Class for file encryption using encryption:
 
 ```cpp
 class FileEncryptHandler ...

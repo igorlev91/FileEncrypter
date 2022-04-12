@@ -5,6 +5,7 @@
 #include <iterator>
 #include <sstream>
 
+
 class EncryptionBase
 {
 public:
@@ -15,7 +16,6 @@ public:
 
     virtual ~EncryptionBase() = default;
 };
-
 
 class XOREncryption : public EncryptionBase
 {
@@ -34,12 +34,29 @@ public:
         return result;
     }
 
+
     std::string decrypt(const std::string& file, const std::string& password) override
     {
         return encrypt(file, password);
     }
 };
 
+class ZipEncryption : public EncryptionBase
+{
+public:
+    std::string encrypt(const std::string& file, const std::string& password = {}) override
+    {
+        std::cout << " Some encrypt logic" << std::endl;
+        return {};
+    }
+
+    std::string decrypt(const std::string& file, const std::string& password = {}) override
+    {
+        std::cout << " Some decrypt logic" << std::endl;
+        return {};
+    }
+
+};
 
 class FileEncryptHandler
 {
@@ -47,18 +64,18 @@ public:
     FileEncryptHandler (std::unique_ptr<EncryptionBase> enc) : encryptor(std::move(enc))
     {}
 
-    void encrypt(const std::string& From, const std::string& To, const std::string& password = {})
+    void encrypt(const std::string& filepathFrom, const std::string& filepathTo, const std::string& password = {})
     {
 
-        std::ofstream output(To, std::ios::trunc);
-        output << encryptor->encrypt(processTextFromFile(From), password);
+        std::ofstream output(filepathTo, std::ios::trunc);
+        output << encryptor->encrypt(processTextFromFile(filepathFrom), password);
 
     }
 
-    void decrypt(const std::string& From, const std::string& To, const std::string& password = {})
+    void decrypt(const std::string& filepathFrom, const std::string& filepathTo, const std::string& password = {})
     {
-        std::ofstream output(To, std::ios::trunc);
-        output << encryptor->decrypt(processTextFromFile(From), password);
+        std::ofstream output(filepathTo, std::ios::trunc);
+        output << encryptor->decrypt(processTextFromFile(filepathFrom), password);
     }
 
 
@@ -79,21 +96,7 @@ int main() {
     fileEncryptHandler.encrypt("XOR_Original.txt", "XOR_Crypted.txt", password);
     fileEncryptHandler.decrypt("XOR_Crypted.txt", "XOR_Decrypted.txt", password);
 
-    std::string key{"4"};
-    std::string text{"abcd..efg..hig..4#$%#.."};
-    std::string result{text};
-
-    for (size_t i = 0; i < text.size(); i++)
-    {
-        result[i] = text[i] ^ key[i % key.size()];
-    }
-
-    std::cout << result << std::endl;
-
-    for (size_t i = 0; i < text.size(); i++)
-    {
-        text[i] = result[i] ^ key[i % key.size()];
-    }
-
-    std::cout << text << std::endl;
+    FileEncryptHandler fileEncryptHandlerZip(std::make_unique<ZipEncryption>());
+    fileEncryptHandlerZip.encrypt("Zip_Original.txt", "Zip_Crypted.txt", password);
+    fileEncryptHandlerZip.decrypt("Zip_Crypted.txt", "Zip_Decrypted.txt", password);
 }
